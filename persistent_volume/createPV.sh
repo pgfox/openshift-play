@@ -5,7 +5,7 @@ echo "using INFRA_HOST $INFRA_HOST"
 echo "using MASTER_HOST $MASTER_HOST"
 
 
-ssh -i ~/.ssh/quicklab_cloud_key.pem -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" quicklab@$INFRA_HOST
+ssh -i ~/.ssh/quicklab_cloud_key.pem -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" quicklab@$INFRA_HOST << EOF
 
 #create a directory for the pv(s)
 sudo mkdir -p /home/data/pv0001
@@ -14,8 +14,9 @@ sudo mkdir -p /home/data/pv0002
 sudo chmod -R 777 /home/data/
 
 #add to exports file
-sudo echo "/home/data/pv0001 *(rw,sync)" >> /etc/exports
-sudo echo "/home/data/pv0002 *(rw,sync)" >> /etc/exports
+echo "/home/data/pv0001 *(rw,sync)" | sudo tee --append /etc/exports
+echo "/home/data/pv0002 *(rw,sync)" | sudo tee --append /etc/exports
+
 
 echo "created entries in export file"
 # Enable the new exports without bouncing the NFS service
@@ -35,7 +36,7 @@ sudo service iptables save
 echo "done security section"
 
 #back to local shell
-exit
+EOF
 
 #copy up yaml file to
 scp -i ~/.ssh/quicklab_cloud_key.pem -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" nfs-pv1.yaml quicklab@$MASTER_HOST:/home/quicklab
@@ -43,13 +44,14 @@ scp -i ~/.ssh/quicklab_cloud_key.pem -o "UserKnownHostsFile /dev/null" -o "Stric
 
 echo "copied pv yaml files to master"
 
-#log in to master
-ssh -i ~/.ssh/quicklab_cloud_key.pem -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" quicklab@$MASTER_HOST
+##log in to master
+ssh -i ~/.ssh/quicklab_cloud_key.pem -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" quicklab@$MASTER_HOST << EOF
 oc login -u system:admin
 
-# create the pv object in openshift
+## create the pv object in openshift
 oc create -f nfs-pv1.yaml
 oc create -f nfs-pv2.yaml
 
-# list pv object
+## list pv object
 oc get pv
+EOF
