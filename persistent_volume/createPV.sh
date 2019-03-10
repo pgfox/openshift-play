@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#export INFRA_HOST=infra-0.amq1ocp.quicklab.pnq2.cee.redhat.com
-#export MASTER_HOST=master-0.amq1ocp.quicklab.pnq2.cee.redhat.com
 
 echo "using INFRA_HOST $INFRA_HOST"
 echo "using MASTER_HOST $MASTER_HOST"
